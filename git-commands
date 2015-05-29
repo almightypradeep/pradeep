@@ -11,3 +11,54 @@ Set other defaults
     git config --global alias.logb "log --pretty=format:\"%h %aN %s\""
     git config --global alias.lg "log --graph --abbrev-commit --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold yellow)%d%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
     git config --global alias.outgoing "cherry -v"
+    
+    
+Everyday tasks
+
+    Check workspace state
+        git status
+    Get latest changes
+        Ensure you have a clean workspace by either:
+            Committing your changes (they will be stored locally and will be made available to other users next time you do a push) using commands
+                git add <files...>
+                git commit -m "<commit-comment>"
+            Stashing your changes (they are removed from your workspace and stored locally.  They will not be included in pushes but they can be unstashed and committed if required)
+                git stash save -u
+                Unstash your changes using: git stash pop
+        Get the latest changes
+            git pull --rebase
+    Including your changes
+        Add your changes to the changset (a list of changes to be committed) using: 
+            git add <files...>
+        Commit your changes to your local repo
+            git commit -m "<commit-comment>"
+        When you are ready you can push your changes to the remote repo, which makes them available to other users
+            git push
+
+    Revert to a previous commit id and commit delta not erasing history
+
+        git reset --hard yourgitid
+
+        git reset --soft @{1}
+
+        git commit -a
+
+    Check whether a change has been pushed or not
+        git outgoing
+    Ignore local changes to an already versioned file (see http://stackoverflow.com/a/11366713 for details):
+         git update-index --assume-unchanged <file> 
+
+ 
+How to get out of some common jams
+
+    Revert a change that has already been pushed, for example your change breaks the build
+        git revert -n <commit-hash>
+        git commit -m "<commit-comment>"
+        git push
+
+    Amend the commiter or comment for the most recent unpushed commit, for example if the server wont let you push because your username is wrong
+        git commit --amend -m "<commit-comment>"
+
+    Add files to a commit that has not been pushed, for example you forgot to add some files to yoru commit
+        git add <files...>
+        git commit --amend -m "<commit-comment>"    
