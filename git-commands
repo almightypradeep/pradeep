@@ -1,0 +1,13 @@
+
+ssh-keygen
+git config --global user.name "Your Human-Readable Name"
+git config --global user.email your.email@jpmorgan.com
+
+
+Set other defaults
+    git config --global core.autocrlf input
+    git config --global pull.rebase true
+    git config --global push.default simple
+    git config --global alias.logb "log --pretty=format:\"%h %aN %s\""
+    git config --global alias.lg "log --graph --abbrev-commit --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(bold yellow)%d%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
+    git config --global alias.outgoing "cherry -v"
