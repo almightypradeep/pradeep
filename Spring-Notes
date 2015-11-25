@@ -1,0 +1,230 @@
+Spring 3.0
+ 
+It was created by Rod Jhonson. Spring is light weighted IOC and aspect oriented container.
+Light weight: Entire Spring can be composed in one single jar not over 2.5MB. Its processing overhead is very less.
+IOC: Objects are passively given their dependent objects instead of objects looking for and creating themselves. Its similar to JNDI in reverse, where the container keeps/instantiates the dependent objects and provides them without asking.
+Spring modules: 7 modules
+ 
+The Core Container: Springs fundamental classes including the BeanFactory which makes Spring a container.
+Application Context Module: Extends core container’s BeanFactory and makes Spring a Framework. Provides support for i18N, application life cycle events and validation. It also provides services like email, JNDI, EJB integration, remoting, integrating with Freemarker, Velocity frameworks, and scheduling.
+JDBC & DAO Module: Supports JDBC connectivity. Spring manages the boilerplate code required for JDBC.
+What is Dependency Injection? In IoC the dependent objects are inverted or injected into the main object.
+I mean, usually the caller object instantiates the required object. But in IoC, it’s the callee objects are inverted into the caller object that is why it is called Inversion Of Control. But, since this name is not easily understood; they have renamed it to Dependency Injection. Objects are given their dependencies at runtime by the container.
+	 
+
+Aspect Oriented: Separates the business logic from system services. So, applications can only be concerned with the business logic and not worry about system services like logging, transactional support, and Security etc also known as cross-cutting concerns. It’s promotes separation of concerns. 
+-	Cross-cutting features like above need to be provided for multiple components multiple times. So, if these are not present at common place; it will involve in changing multiple components multiple times with change in these ccc.
+-	Ex: A business logic to add a contact to address should only be concerned with adding the contact but not with security or transactional.
+ 	 
+
+Containers:
+1.	BeanFactory
+2.	ApplicationContext
+o	ClassPathXMLApplicationContext
+o	FileSystemXMLApplicationContext
+o	XMLWebApplicationContext
+Bean Life Cycle:
+ 
+1.	Spring instantiates the bean.
+2.	Spring injects values and bean references into the bean’s properties.
+3.	If the bean implements BeanNameAware, Spring passes the bean’s ID to the setBeanName() method.
+4.	If the bean implements BeanFactoryAware, Spring calls the setBeanFactory() method, passing in the bean factory itself.
+5.	If the bean implements ApplicationContextAware, Spring will call the setApplicationContext() method, passing in a reference to the enclosing application context.
+6.	If any of the beans implement the BeanPostProcessor interface, Spring calls their postProcessBeforeInitialization() method.
+7.	If any beans implement the InitializingBean interface, Spring calls their afterPropertiesSet() method. Similarly, if the bean was declared with an init-method, then the specified initialization method will be called.
+8.	If there are any beans that implement BeanPostProcessor, Spring will call their postProcessAfterInitialization() method.
+9.	At this point, the bean is ready to be used by the application and will remain in the application context until the application context is destroyed.
+10.	If any beans implement the DisposableBean interface, then Spring will call their destroy() methods. Likewise, if any bean was declared with a destroymethod, then the specified method will be called.
+Spring XML Namespaces:
+ 
+ 
+Bean element: <bean></bean>
+1.	Id: Bean ID, which uniquely identifies the bean.
+2.	Class: Bean implementation class.
+3.	Factory-method: specifies the static factory method to be invoked instead of constructor.
+4.	Init-method: Performs setup called immediately after the bean is instantiated.
+5.	Destroy-method: Performs teardown called immediately just before the bean is ready to be removed from the container.
+ Ex: <bean id="auditorium" class="com.springinaction.springidol.Auditorium" init-method="turnOnLights" destroy-method="turnOffLights"/> these methods will be called for auditorium bean.
+6.	Default-init-method & default-destroy-method: <?xml version="1.0"encoding="UTF-8"?> <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" default-init-method="turnOnLights" default-destroy-method="turnOffLights">... </beans>
+All the beans should have the same methods with same names.
+7.	InitializingBean and DisposableBean: An optional way to define init and destroy methods for a bean is to write the bean class to implement Spring’s  initializingBean and DisposableBean interfaces. The Spring container treats beans that implement these interfaces in a special way by allowing them to hook into the bean lifecycle. InitializingBean declares an afterPropertiesSet() method that serves as the init method. As for DisposableBean, it declares a destroy() method that gets called when a bean is removed from the application context.
+
+	
+Bean Scope:
+1.	Singleton: default scope. Returns the same bean everytime an object needs it either by getBean or via wiring.
+2.	Prototype: New bean every time it is needed. 
+Ex: <bean id="ticket" class="com.springinaction.springidol.Ticket" scope="prototype" />
+ 
+Wiring properties with Spring’s p namespace
+Instead of using too many properties for a bean configuration, you can leverage wiring it to Springs namespace.
+<?xml version="1.0" encoding="UTF-8"?> <beans xmlns="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+<bean id="kenny" class="com.springinaction.springidol.Instrumentalist" p:song = "Jingle Bells" p:instrument-ref = "saxophone" />
+Wiring Collections
+1.	List
+<bean id="hank" class="com.springinaction.springidol.OneManBand"> 
+<property name="instruments">
+ <list> <ref bean="guitar" /> <ref bean="cymbal" /> <ref bean="harmonica" />
+ </list>
+</property> </bean>
+
+2.	Set
+<bean id="hank" class="com.springinaction.springidol.OneManBand">
+ <property name="instruments">
+ <set> <ref bean="guitar" /> <ref bean="cymbal" /> <ref bean="harmonica" /> <ref bean="harmonica" />
+</set>
+ </property> </bean>
+
+3.	Map
+<bean id="hank" class="com.springinaction.springidol.OneManBand"> 
+<property name="instruments">
+ <map> <entry key="GUITAR" value-ref="guitar" /> <entry key="CYMBAL" value-ref="cymbal" /> 
+<entry key="HARMONICA" value-ref="harmonica" />
+ </map>
+ </property> </bean>
+	Key, Key-ref, value, value-ref are its <entry> tags attributes.
+4.	Properties
+<bean id="hank" class="com.springinaction.springidol.OneManBand"> 
+<property name="instruments">
+ 	<props> <prop key="GUITAR">STRUM STRUM STRUM</prop> <prop key="CYMBAL">CRASH CRASH CRASH</prop> 
+<prop key="HARMONICA">HUM HUM HUM</prop> 
+</props> 
+</property> </bean>
+It id different from Map, in the way that it can hold only String=String type; but Map can handle Object=Object types for key=Value pair.
+
+
+Spring Expression Language (SpEL)
+1.	Literal Values: Mapping literal values to the property values. <property name="count" value="#{5}"/>. We can also map floating-point, String (enclose them in either single of double quotes), Boolean.
+2.	Referencing one bean into another: <property name="instrument" value="#{saxophone}"/> is equivalent to <property name="instrument" ref="saxophone"/>.
+3.	Copy one beans property into another: 
+<bean id="carl" class="com.springinaction.springidol.Instrumentalist"> <property name="song" value="#{kenny.song}" /> </bean>
+Here, carl copies the song which Kenny has. 
+Instrumentalist carl = new Instrumentalist();
+carl.setSong(kenny.getSong());
+4.	call a bean’s method in another bean: 
+<property name="song" value="#{songSelector.selectSong()}"/> This makes the bean assign the song returned by the selectSong() method of songSelector bean using the SpEL. Not just that, if the selectSong() method returns String you can even use String operations on it. For ex: say the carl bean requires the song to be in upper case then,
+<property name="song" value="#{songSelector.selectSong().toUpperCase()}"/>. Only restriction here is, this String operations will work as long as the selectSong method does not return null. If it returns null, a NULLPOINTEREXCEPTION will be thrown. To avoid this in SpEL simply use the following 
+<property name="song" value="#{songSelector.selectSong().toUpperCase()}"/> There?. Is used to check if the selectSong() is not null then invoke .toUpperCase()
+5.	Working with Types.
+T() operator – Gives access to static methods and constants of a given class.
+Ex: <property name="multiplier" value="#{T(java.lang.Math).PI}"/>
+<property name="randomNumber" value="#{T(java.lang.Math).random()}"/> when the bean is initialized and application is invoking the bean property randonNumber it will realize into java.lang.Math.random() method to determine the value of this property randomNumber.
+6.	Operations with SpEL
+ 	Ex: <property name="adjustedAmount" value="#{counter.total + 42}"/>
+I can use this feature to automatically calculate the percentage, discount,  etc
+<propertyname="circumference"  value="#{2 *T(java.lang.Math).PI*circle.radius}"/> 
+<property name="area" value="#{T(java.lang.Math).PI * circle.radius ^ 2}"/> 
+<property name="fullName" value="#{performer.firstName + ' ' + performer.lastName}"/>  
+Camparing Values:
+<property name="equal" value="#{counter.total == 100}"/>
+<property name="hasCapacity" value="#{counter.total le 100000}"/>
+Logical Expression:
+<property name="largeCircle" value="#{shape.kind == 'circle' and shape.perimeter gt 10000}"/>
+<property name="outOfStock" value="#{!product.available}"/>
+Conditional Evaluating:
+<property name="instrument" value="#{songSelector.selectSong()=='Jingle Bells'?piano:saxophone}"/>
+<property name="song" value="#{kenny.song != null ? kenny.song : 'Greensleeves'}"/>
+Regex:
+<property name="validEmail" value= "#{admin.email matches '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com'}"/>
+Checks for valid email, + is used as concatenator.
+
+7.	SpEL with Collections
+Read about it. I have not made any notes of it.  SpEL can access collections using their index like core java.
+
+AUTOWIRING
+By default the default-autowire is set to none, meaning no bean will be autowired; it has to be configured by the developer. If you want to apply a common autowiring to all beans within a bean factory or <beans> tag, then; use the default-wiring=”byName” at the beans declaration.
+1.	byname: A bean of the same name from the applicationContext.xml is automatically injected.
+ 
+
+2.	byType: Beans of the same type from the applicationContext.xml is automatically injected. It is also possible that there may be many beans declared in the applicationContext.xml which are of the same type; in that case Spring simply throws exception as it cannot resolve the ambiguity. There are 2ways to resolve this;
+-	To make one bean as primary. By default, all beans are primary; so to leverage this, simply declare other beans as primary=”false”
+<bean id="saxophone" class="com.springinaction.springidol.Saxophone" primary="false" />
+-	Set autowiring-candidate=”false”
+<bean id="saxophone" class="com.springinaction.springidol.Saxophone" autowire-candidate="false" />
+
+ 
+
+3.	Constructor
+<constructor-arg> can be replaced by autowire="constructor".
+<bean id="duke" class="com.springinaction.springidol.PoeticJuggler" autowire="constructor" />
+In this case, the constructor of PoeticJuggler requires a poem to ne injected, there is a bean “sonnet20” which is of type Poem; so the Spring will automatically inject this bean into it.
+ 
+
+4.	autodetect: Attempts to use constructor autowiring first, if that fails it will use byType.
+<bean id="duke" class="com.springinaction.springidol.PoeticJuggler" autowire="autodetect" />
+
+Wiring with Annotations
+It provides more fine grained method for autowiring. You can selectively autowire certain properties. It is not enabled by default. You need to turn it on using <context:annotation-config>.
+Ways:
+1.	@Autowired(required=”true/false”)
+Has @Qualifier: Acts like byType autowiring and qualifies the most eligible bean by type.
+NoSuchBeanDefinitionException is thrown when no matching bean is found to populate the field which is @Autowired.
+@Autowired(required=false)
+ private Instrument instrument;
+By setting the required=false attribute, we inform the Spring to populate the bean with null rather than throwing the above exception.
+@Autowired @Qualifier("guitar") private Instrument instrument;
+If there are more than one bean of the same type instrument and the autowiring is of ByType; then instead of spring guessing which bean to be populated it throws the exception. To avoid this, we can suggest the Spring to qualify a particular bean for this member. In the above example, when the instrument field of the current class is autowired, then there are more than one beans of the type Instrument; then by using @Qualifier; guitar bean is chosen and populated in the field.
+In the sense, by using the @Qualifier, it’s like using an Autowiring byname instead of byType.
+
+Instead of explicitly wiring guitar as instrument, it is possible to narrow down the type of instrument using the Qualifier.
+<bean class="com.springinaction.springidol.Guitar"> <qualifier value="stringed" /> </bean> 
+@Qualifier("stringed") public class Guitar implements Instrument { ... } 
+qualifies the bean as stringed.
+
+Creating custom qualifiers
+Lets create custom qualifier ‘StringedInstrument’, below are the steps;
+1.	Create a StringInstrument interface.
+import java.lang.annotation.ElementType; 
+import java.lang.annotation.Retention;
+ import java.lang.annotation.RetentionPolicy;
+ import java.lang.annotation.Target;
+ import org.springframework.beans.factory.annotation.Qualifier;
+ @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+ @Retention(RetentionPolicy.RUNTIME) 
+@Qualifier
+ public @interface StringedInstrument { }
+2.	With @StringInstrument you can use it as a qualifier to annotate quitar.
+@StringedInstrument
+public class Guitar implements Instrument { ... }
+3.	Now you can use it with the @Autowired 
+@Autowired
+@StringedInstrument
+ private Instrument instrument;
+	Now when Spring tries to autowire the instrument to appropriate bean, then it will narrow down the candidates to all the StringInstruments. In this case the class quitar is qualified.
+
+2.	@Inject
+Has @Named: Acts like byname, injects a bean with the given bean ID.
+Injection of multiple instances
+Like @Autowired except that it does not have the required attribute.
+Lazy injection
+Injects a Provider interface.
+3.	@Resource
+4.	@Value: Is used to wire primitive types like int, String, Boolean.
+Can use SpEL as arguments
+Ex: @Value("Eruption") 
+private String song;
+@Value("#{systemProperties.myFavoriteSong}")
+5.	
+<context:component-scan>:
+-	Does everything that <context:annotation-config> does
+-	Automatically discovers beans and declares them. There is no need to use <bean> tag.
+-	To configure Spring for autodiscovery, use <context:component-scan> instead of <context:annotation-config>
+-	Scans all the packages defined in the declaration and automatically identifies the beans declared as annotated components and declares them.
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+<context:component-scan 
+base-package="com.springinaction.springidol">
+</context:component-scan>
+</beans>
+-	By default, <context:component-scan> looks for classes that are annotated with one of a handful of special stereotype annotations:
+	@Component—A general-purpose stereotype annotation indicating that the class is a Spring component
+	@Controller—Indicates that the class defines a Spring MVC controller
+	@Repository—Indicates that the class defines a data repository
+	@Service—Indicates that the class defines a service
+	Any custom annotation that is itself annotated with @Component
+
